@@ -23,9 +23,9 @@
       </p>
       
       <div class="mt-6 flex flex-wrap gap-3">
-        <a href="data-karyawan/karyawan.php"
-           class="bg-green-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-green-700 transition">
-           Data Karyawan
+        <a href="{{ route('karyawan.index') }}"
+          class="bg-green-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-green-700 transition">
+          Data Karyawan
           </a>
           <a href="gaji-karyawan/gaji.php"
           class="bg-green-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-green-700 transition">

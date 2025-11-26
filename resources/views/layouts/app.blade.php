@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Z-Corporate</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body class="min-h-screen flex flex-col bg-gradient-to-b from-green-400 to-green-100 font-poppins">
     <header class="bg-white shadow-md flex justify-between items-center px-1 py-1 border-b border-gray-200">

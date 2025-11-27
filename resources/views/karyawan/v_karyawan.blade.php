@@ -17,7 +17,7 @@
             </h2>
             <button onclick="openModalTambah()" 
                     class="bg-green-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-green-700 transition">
-                + Karyawan
+                + Tambah Karyawan
             </button>
         </div>
 
@@ -44,9 +44,8 @@
                             <td class="py-2 px-3">{{ $row->alamat }}</td>
                             <td class="py-2 px-3">{{ $row->no_telp }}</td>
                             <td class="py-2 px-3 text-center">
-
                                 <button 
-                                    onclick="editData({{ $row->id }}, '{{ $row->nama }}', '{{ $row->jabatan }}', '{{ $row->alamat }}', '{{ $row->no_telp }}')"
+                                    onclick="editData({{ $row->id }})"
                                     class="text-green-600 hover:text-green-800 mx-1">
                                     <i class="ri-edit-2-fill text-xl"></i>
                                 </button>
@@ -159,59 +158,120 @@
     </div>
 </div>
 
-{{-- SCRIPT --}}
 <script>
+
 function openModalTambah() { document.getElementById('modalTambah').classList.remove('hidden'); }
 function closeModalTambah() { document.getElementById('modalTambah').classList.add('hidden'); }
 
 function openModalEdit() { document.getElementById('modalEdit').classList.remove('hidden'); }
 function closeModalEdit() { document.getElementById('modalEdit').classList.add('hidden'); }
 
-function editData(id, nama, jabatan, alamat, no_telp) {
-    document.getElementById('edit_id').value = id;
-    document.getElementById('edit_nama').value = nama;
-    document.getElementById('edit_jabatan').value = jabatan;
-    document.getElementById('edit_alamat').value = alamat;
-    document.getElementById('edit_no_telp').value = no_telp;
+// EDIT DATA
+function editData(id) {
 
-    openModalEdit();
+    fetch("{{ url('/karyawan') }}/" + id)
+        .then(res => res.json())
+        .then(data => {
+
+            if (data.message === "Data tidak ditemukan") {
+                alert("Data tidak ditemukan");
+                return;
+            }
+
+            document.getElementById('edit_id').value = data.id;
+            document.getElementById('edit_nama').value = data.nama;
+            document.getElementById('edit_jabatan').value = data.jabatan;
+            document.getElementById('edit_alamat').value = data.alamat;
+            document.getElementById('edit_no_telp').value = data.no_telp;
+
+            openModalEdit();
+        })
+        .catch(err => {
+            alert("Gagal mengambil data.");
+            console.error(err);
+        });
 }
 
 // TAMBAH DATA
-document.getElementById('formTambah').addEventListener('submit', function(e) {
+document.getElementById('formTambah').addEventListener('submit', function (e) {
     e.preventDefault();
+
     let form = new FormData(this);
-    form.append("_token", "{{ csrf_token() }}");
 
     fetch("{{ route('karyawan.store') }}", {
         method: "POST",
+        headers: {
+            "Accept": "application/json"
+        },
         body: form
     })
-    .then(res => res.json())
-    .then(resp => {
+    .then(async res => {
+
+        // VALIDASI ERROR (422)
+        if (res.status === 422) {
+            const err = await res.json();
+            const firstError = Object.values(err.errors)[0][0];
+            alert(firstError);
+            return;
+        }
+
+        // ERROR LAIN (400,404,500)
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.message || "Terjadi kesalahan.");
+            return;
+        }
+
+        // SUCCESS
+        const resp = await res.json();
         alert(resp.message);
-        if (resp.status === 'success') location.reload();
-    });
+
+        if (resp.status === "success") location.reload();
+    })
+    .catch(() => alert("Terjadi kesalahan."));
 });
 
-// UPDATE DATA
-document.getElementById('formEdit').addEventListener('submit', function(e) {
+
+
+// EDIT DATA
+document.getElementById('formEdit').addEventListener('submit', function (e) {
     e.preventDefault();
 
     let id = document.getElementById('edit_id').value;
     let form = new FormData(this);
-    form.append("_token", "{{ csrf_token() }}");
     form.append("_method", "PUT");
 
     fetch("{{ url('/karyawan') }}/" + id, {
         method: "POST",
+        headers: {
+            "Accept": "application/json"
+        },
         body: form
     })
-    .then(res => res.json())
-    .then(resp => {
+    .then(async res => {
+
+        // VALIDASI ERROR
+        if (res.status === 422) {
+            const err = await res.json();
+            const firstError = Object.values(err.errors)[0][0];
+            alert(firstError);
+            return;
+        }
+
+        // ERROR LAIN
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.message || "Terjadi kesalahan.");
+            return;
+        }
+
+        // SUCCESS
+        const resp = await res.json();
         alert(resp.message);
-        if (resp.status === 'success') location.reload();
-    });
+
+        if (resp.status === "success") location.reload();
+    })
+    .catch(() => alert("Terjadi kesalahan."));
 });
 
 // HAPUS DATA
@@ -219,19 +279,20 @@ function hapusData(id) {
     if (!confirm("Yakin ingin menghapus data ini?")) return;
 
     let form = new FormData();
-    form.append("_token", "{{ csrf_token() }}");
     form.append("_method", "DELETE");
+    form.append("_token", "{{ csrf_token() }}");
 
     fetch("{{ url('/karyawan') }}/" + id, {
-        method: "POST", 
+        method: "POST",
         body: form
     })
-    .then(res => res.json())
-    .then(resp => {
+    .then(async res => {
+        const resp = await res.json();
         alert(resp.message);
-        if (resp.status === 'success') location.reload();
+
+        if (resp.status === "success") location.reload();
     });
 }
-</script>
 
+</script>
 @endsection

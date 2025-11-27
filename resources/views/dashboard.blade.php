@@ -27,7 +27,7 @@
           class="bg-green-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-green-700 transition">
           Data Karyawan
           </a>
-          <a href="gaji-karyawan/gaji.php"
+        <a href="{{ route('gaji.index') }}"
           class="bg-green-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-green-700 transition">
           Gaji Karyawan
         </a>
